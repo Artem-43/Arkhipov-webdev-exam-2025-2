@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}{{ recipe.title }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5 mb-5">
+    <h2 class="mb-4">{{ recipe.title }}</h2>
+
+    {% if recipe.images %}
+    <div class="mb-4">
+        <div class="row">
+            {% for image in recipe.images %}
+            <div class="col-md-4 mb-3">
+                <a href="{{ url_for('static', filename='uploads/' ~ image.file_name) }}" target="_blank">
+                    <img src="{{ url_for('static', filename='uploads/' ~ image.file_name) }}" class="img-fluid rounded" alt="Image">
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="mb-4">
+        <p><strong>Время приготовления:</strong> {{ recipe.cook_time }} мин</p>
+        <p><strong>Порции:</strong> {{ recipe.servings }}</p>
+        <p><strong>Автор:</strong> {{ recipe.author.first_name }} {{ recipe.author.last_name }}</p>
+    </div>
+
+    <div class="mb-4">
+        <h4>Описание</h4>
+        <div>{{ recipe.description|markdown|safe }}</div>
+    </div>
+
+    <div class="mb-4">
+        <h4>Ингредиенты</h4>
+        <div>{{ recipe.ingredients|markdown|safe }}</div>
+    </div>
+
+    <div class="mb-4">
+        <h4>Шаги приготовления</h4>
+        <div>{{ recipe.steps|markdown|safe }}</div>
+    </div>
+
+    {% if current_user.is_authenticated and current_user.role.name in ['user', 'admin'] %}
+            {% set my_review = recipe.reviews|selectattr("user_id", "equalto", current_user.id)|first %}
+            {% if not my_review %}
+                <a href="{{ url_for('reviews.add_review', recipe_id=recipe.id) }}" class="btn btn-success mt-3">
+                    Написать отзыв
+                </a>
+            {% else %}
+                <div class="alert alert-info mt-3">
+                    Ваш отзыв: <strong>{{ my_review.rating }}/5</strong> — {{ my_review.text }}
+                </div>
+            {% endif %}
+    {% endif %}
+
+    <div class="mb-4">
+        <h4>Отзывы</h4>
+        {% if recipe.reviews %}
+        <div class="list-group">
+            {% for review in recipe.reviews %}
+            <div class="list-group-item">
+                <p><strong>{{ review.user.first_name }} {{ review.user.last_name }}</strong> — 
+                   оценка: {{ review.rating }}/5</p>
+                <p>{{ review.text }}</p>
+                <small class="text-muted">{{ review.created_at.strftime('%d.%m.%Y %H:%M') }}</small>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p>Пока нет отзывов.</p>
+        {% endif %}
+
+    </div>
+</div>
+
+{% endblock %}

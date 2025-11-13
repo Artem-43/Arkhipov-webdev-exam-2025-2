@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block title %}{{ 'Редактирование' if recipe else 'Добавление' }} рецепта{% endblock %}
+{% block content %}
+<div class="container mt-5 mb-5">
+    <h2 class="mb-4">{{ 'Редактирование рецепта' if recipe else 'Добавление нового рецепта' }}</h2>
+
+    {% if error %}
+    <div class="alert alert-danger">{{ error }}</div>
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data" onsubmit="console.log('submit!');">
+        {% import 'recipe_macros.html' as macros %}
+        {{ macros.recipe_form(recipe) }}
+
+        {% if not recipe %}
+        <div class="mb-3">
+            <label for="images" class="form-label">Изображения</label>
+            <input type="file" class="form-control" id="images" name="images" multiple>
+        </div>
+        {% endif %}
+
+        <button type="submit" class="btn btn-primary">Сохранить</button>
+        <a href="{{ url_for('users.index') }}" class="btn btn-secondary">Отмена</a>
+    </form>
+</div>
+
+<link rel="stylesheet" href="https://unpkg.com/easymde/dist/easymde.min.css">
+<script src="https://unpkg.com/easymde/dist/easymde.min.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+    new EasyMDE({ element: document.getElementById("description") });
+    new EasyMDE({ element: document.getElementById("ingredients") });
+    new EasyMDE({ element: document.getElementById("steps") });
+});
+</script>
+{% endblock %}

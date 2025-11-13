@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2 class="mb-4">Список рецептов</h2>
+
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 recipes-list">
+  {% for recipe in recipes %}
+  <div class="col">
+    <div class="card h-100 shadow-sm">
+      <div class="card-body">
+        <h5 class="card-title">{{ recipe.title }}</h5>
+        <p class="card-text mb-1">Время: {{ recipe.cook_time }} мин</p> 
+        <p class="card-text mb-1">Порции: {{ recipe.servings }}</p> 
+        <p class="card-text mb-1">Средняя оценка: {{ (recipe.reviews|map(attribute='rating')|sum / (recipe.reviews|length or 1)) | round(1) }} </p> 
+        <p class="card-text mb-0">Отзывов: {{ recipe.reviews|length }}</p>
+      </div>
+      <div class="card-footer d-flex justify-content-between">
+        <a href="{{ url_for('admin.show_recipe', recipe_id=recipe.id) }}" class="btn btn-primary btn-sm">
+          Просмотр
+        </a>
+        {% if current_user.is_authenticated and (current_user.id == recipe.author_id or current_user.role.name == 'Администратор') %}
+          <div>
+            <a href="{{ url_for('admin.edit_recipe', recipe_id=recipe.id) }}" class="btn btn-warning btn-sm">
+              Редактировать
+            </a>
+            <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal{{ recipe.id }}">
+              Удалить
+            </button>
+          </div>
+
+          <div class="modal fade" id="deleteModal{{ recipe.id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ recipe.id }}" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="deleteModalLabel{{ recipe.id }}">Удаление рецепта</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                </div>
+                <div class="modal-body">
+                  Вы уверены, что хотите удалить рецепт <strong>{{ recipe.title }}</strong>?
+                </div>
+                <div class="modal-footer">
+                  <form method="post" action="{{ url_for('admin.delete_recipe', recipe_id=recipe.id) }}">
+                    <button type="submit" class="btn btn-danger">Да</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Нет</button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        {% endif %}
+      </div>
+    </div>
+  </div>
+{% endfor %}
+</div>
+
+{% if current_user.is_authenticated %}
+  <div class="mt-4 text-center">
+    <a href="{{ url_for('admin.add_recipe') }}" class="btn btn-success">Добавить рецепт</a>
+  </div>
+{% endif %}
+
+<nav aria-label="Page navigation example" class="mt-4">
+  <ul class="pagination justify-content-center">
+    {% if recipes.has_prev %}
+      <li class="page-item">
+        <a class="page-link" href="{{ url_for('users.index', page=recipes.prev_num) }}">Назад</a>
+      </li>
+    {% else %}
+      <li class="page-item disabled"><span class="page-link">Назад</span></li>
+    {% endif %}
+
+    <li class="page-item disabled">
+      <span class="page-link">Страница {{ recipes.page }} из {{ recipes.pages }}</span>
+    </li>
+
+    {% if recipes.has_next %}
+      <li class="page-item">
+        <a class="page-link" href="{{ url_for('users.index', page=recipes.next_num) }}">Вперёд</a>
+      </li>
+    {% else %}
+      <li class="page-item disabled"><span class="page-link">Вперёд</span></li>
+    {% endif %}
+  </ul>
+</nav>
+
+
+{% endblock %}

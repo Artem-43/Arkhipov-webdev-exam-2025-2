@@ -1,0 +1,34 @@
+{% macro recipe_form(recipe=None) %}
+<div class="mb-3">
+    <label for="title" class="form-label">Название</label>
+    <input type="text" class="form-control" id="title" name="title" 
+           value="{{ recipe.title if recipe else '' }}">
+</div>
+
+<div class="mb-3">
+    <label for="description" class="form-label">Описание</label>
+    <textarea class="form-control" id="description" name="description" rows="4" >{{ recipe.description if recipe else '' }}</textarea>
+</div>
+
+<div class="mb-3">
+    <label for="cook_time" class="form-label">Время приготовления (минуты)</label>
+    <input type="number" class="form-control" id="cook_time" name="cook_time" min="1" 
+           value="{{ recipe.cook_time if recipe else '' }}">
+</div>
+
+<div class="mb-3">
+    <label for="servings" class="form-label">Количество порций</label>
+    <input type="number" class="form-control" id="servings" name="servings" min="1" 
+           value="{{ recipe.servings if recipe else '' }}">
+</div>
+
+<div class="mb-3">
+    <label for="ingredients" class="form-label">Ингредиенты</label>
+    <textarea class="form-control" id="ingredients" name="ingredients" rows="4" >{{ recipe.ingredients if recipe else '' }}</textarea>
+</div>
+
+<div class="mb-3">
+    <label for="steps" class="form-label">Шаги приготовления</label>
+    <textarea class="form-control" id="steps" name="steps" rows="6" >{{ recipe.steps if recipe else '' }}</textarea>
+</div>
+{% endmacro %}
